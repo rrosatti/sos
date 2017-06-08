@@ -39,5 +39,71 @@ class Storcli64(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
         if cmd_ctrlcount['status'] == 0:
             num_ctrls = self.get_num_ctrls(cmd_ctrlcount['output'])
 
-        print(num_ctrls)
+        self.add_cmd_output([
+                            "storcli64 show all",
+                            "storcli64 -v"])
+        
+        for i in range(0, num_ctrls):
+            # /cx /eall show commands
+            self.add_cmd_output([
+                                "storcli64 /c%d /eall show status" % i,
+                                "storcli64 /c%d /eall show phyerrorcounters" % i])
 
+            # /cx /eall /sall show commands
+            eall_dall_show = ["all", "health", "copyback", "phyerrorcounters", "initialization", "securitykey keyid", "erase"]
+            for op in eall_dall_show:
+                self.add_cmd_output("storcli64 /c%d /eall /sall show %s" % (i, op))
+
+            # /cx /vall show commands
+            # idea: check if VDs are configured or not
+            vall_show = ["all", "expansion", "init", "cc", "erase", "migrate", "bgi", "autobgi", "trim", "BBMT"]
+            for op in vall_show:
+                self.add_cmd_output("storcli64 /c%d /vall show %s" % (i, op))
+
+            # /cx /bbu show commands
+            # idea: same as above (check if battery is absent)
+            bbu_show = ["all", "status", "properties", "learn", "modes"]
+            for op in bbu_show:
+                self.add_cmd_output("storcli64 /c%d /bbu show %s" % (i, op))
+
+            # other commands
+            # idea: check cd (checkvault) separetely
+            #       same for dall (diskgroup)
+            self.add_cmd_output([
+                                "storcli64 /c%d /dall show all" % i,
+                                "storcli64 /c%d /dall show cachecade" % i,
+                                "storcli64 /c%d /dall show mirror" % i,
+                                "storcli64 /c%d /fall show all" % i,
+                                "storcli64 /c%d /pall show all" % i,
+                                "storcli64 /c%d /cv show all" % i,
+                                "storcli64 /c%d /cv show status" % i,
+                                "storcli64 /c%d /cv show learn" % i,
+                                "storcli64 /c%d /mall show" % i])
+
+            # /cx show commands
+            cx_show = ["events", "eventloginfo", "health", "termlog", 
+                    "sesmonitoring", "failpdonsmarterror", "freespace",
+                    "fshinting", "cc", "ocr", "all", "preservedcache",
+                    "bootdrive", "bootwithpinnedcache", "activityforlocate",
+                    "copyback", "jbod", "autorebuild", "autopdcache",
+                    "cachebypass", "usefdeonlyencrypt",
+                    "prcorrectunconfiguredareas", "batterywarning",
+                    "abortcconerror", "ncq", "configautobalance",
+                    "maintainpdfailhistory", "restorehotspare", "bios",
+                    "alarm", "foreignautoimport", "directpdmapping",
+                    "rebuildrate", "loadbalancemode", "eghs", "cacheflushint",
+                    "prrate", "ccrate", "bgirate", "dpm", "sgpioforce",
+                    "migraterate", "spinupdrivecount", "wbsupport",
+                    "spinupdelay", "coercion", "limitMaxRateSATA",
+                    "HDDThermalPollInterval", "SSDThermalPollInterval",
+                    "smartpollinterval", "eccbucketsize", "eccbucketleakrate",
+                    "backplane", "perfmode", "perfmodevalues", "pi", "time",
+                    "ds", "safeid", "rehostinfo", "pci", "ASO",
+                    "flush cachecade", "securitykey keyid", "patrolRead",
+                    "powermonitoringinfo", "ldlimit", "badblocks",
+                    "maintenance", "personality", "jbodwritecache",
+                    "immediateio", "driveactivityled", "largeiosupport",
+                    "pdfailevents", "pdfaileventoptions", "AliLog",
+                    "flushwriteverify", "largeQD"]
+            for op in cx_show:
+                self.add_cmd_output("storcli64 /c%d show %s" % (i, op))
